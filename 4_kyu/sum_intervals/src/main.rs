@@ -12,15 +12,17 @@ fn sum_intervals(intervals: &[(i32, i32)]) -> i32 {
     let mut sum = 0;
     let mut longest_range = intervals.iter().take(1).last().unwrap();
     for curr in intervals.iter() {
-        if curr.start > longest_range.end {
-            sum += longest_range.end - longest_range.start;
-            longest_range = curr;
+        sum += if curr.start > longest_range.end {
+            longest_range.end - longest_range.start
         } else if curr.end > longest_range.end {
-            sum += curr.start - longest_range.start;
-            longest_range = &curr;
-        }
+            curr.start - longest_range.start
+        } else {
+            0
+        };
+        longest_range = &curr;
     }
-    sum += longest_range.end - longest_range.start;
+
+    sum += longest_range.len() as i32;
 
     return sum;
 }
