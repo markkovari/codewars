@@ -10,20 +10,19 @@ fn sum_intervals(intervals: &[(i32, i32)]) -> i32 {
     intervals.sort_by(|a, b| a.start.cmp(&b.start));
 
     let mut sum = 0;
-    let mut prev = intervals[0].clone();
-    for i in 1..intervals.len() {
-        let curr = intervals[i].clone();
-        if curr.start > prev.end {
-            sum += prev.end - prev.start;
-            prev = curr;
-        } else if curr.end > prev.end {
-            sum += curr.start - prev.start;
-            prev = curr;
+    let mut longest_range = intervals.iter().take(1).last().unwrap();
+    for curr in intervals.iter() {
+        if curr.start > longest_range.end {
+            sum += longest_range.end - longest_range.start;
+            longest_range = curr;
+        } else if curr.end > longest_range.end {
+            sum += curr.start - longest_range.start;
+            longest_range = &curr;
         }
     }
-    sum += prev.end - prev.start;
+    sum += longest_range.end - longest_range.start;
 
-    sum
+    return sum;
 }
 
 #[cfg(test)]
