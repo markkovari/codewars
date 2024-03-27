@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.220.0/assert/mod.ts";
 
-import { fibonacciSequence } from './index.ts'
+import { fibonacciSequence, fibonacciSequenceGen } from './index.ts'
 
 
 Deno.test("first", () => {
@@ -9,11 +9,10 @@ Deno.test("first", () => {
     ];
     const stream = fibonacciSequence();
     const actual = Array(expected.length).fill(0).map(() => stream.next().value);
-
     assertEquals(actual, expected, "should be the same");
 });
 
-Deno.test("url test", () => {
+Deno.test("longer array", () => {
     const expected = [
         1, 1, 2, 3, 5, 8, 13, 21, 34, 55,
         89, 144, 233, 377, 610, 987, 1597,
@@ -25,4 +24,13 @@ Deno.test("url test", () => {
     const actual = Array(expected.length).fill(0).map(() => stream.next().value);
 
     assertEquals(actual, expected, "should be the same");
+});
+
+Deno.test("random length array", () => {
+    const random = Math.floor(Math.random() * 100);
+    const stream = fibonacciSequence();
+    const streamWithGenerator = fibonacciSequenceGen();
+    const withIterator: number[] = Array(random).fill(0).map(() => stream.next().value);
+    const withGenerator: number[] = Array(random).fill(0).map(() => streamWithGenerator.next().value);
+    assertEquals(withIterator, withGenerator);
 });
