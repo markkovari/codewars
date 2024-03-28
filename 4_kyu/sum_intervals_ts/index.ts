@@ -1,7 +1,7 @@
 export function sumOfIntervals(intervals: [number, number][]): number {
-    if (intervals.length === 0) return 0;
-    if (intervals.length === 1) return intervals[0][1] - intervals[0][0];
-    let result: number = 0;
+    if (intervals.length == 0) return 0;
+    if (intervals.length == 1) return intervals[0][1] - intervals[0][0];
+    let result = 0;
     intervals.sort(([a], [b]) => a - b);
     const [first, ...rest] = intervals;
     let [start, end] = first;
