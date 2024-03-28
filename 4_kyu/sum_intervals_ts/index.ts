@@ -10,7 +10,7 @@ export function sumOfIntervals(intervals: [number, number][]): number {
             result += end - start;
             [start, end] = [currentStart, currentEnd];
         } else {
-            end = Math.max(end, currentEnd);
+            end = end > currentEnd ? end : currentEnd;
         }
     }
     result += end - start;
