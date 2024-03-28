@@ -8,8 +8,7 @@ export function sumOfIntervals(intervals: [number, number][]): number {
     for (const [currentStart, currentEnd] of rest) {
         if (currentStart > end) {
             result += end - start;
-            start = currentStart;
-            end = currentEnd;
+            [start, end] = [currentStart, currentEnd];
         } else {
             end = Math.max(end, currentEnd);
         }

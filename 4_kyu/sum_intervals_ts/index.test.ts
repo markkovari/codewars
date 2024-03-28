@@ -9,8 +9,11 @@ const testCases: { input: [number, number][], expected: number }[] = [
     { input: [[-1e9, 1e9]], expected: 2e9 },
     { input: [[0, 20], [-1e8, 10], [30, 40]], expected: 1e8 + 30 },
 ];
-for (const testCase of testCases) {
-    Deno.test(`Sum of intervals: ${testCase.input} => ${testCase.expected}`, () => {
-        assertEquals(sumOfIntervals(testCase.input), testCase.expected);
-    });
-}
+
+Deno.test("Test intervals", async (test) => {
+    for (const testCase of testCases) {
+        await test.step(`Sum of intervals: ${testCase.input} => ${testCase.expected}`, () => {
+            assertEquals(sumOfIntervals(testCase.input), testCase.expected, `Failed for ${testCase.input}, should be ${testCase.expected}`);
+        });
+    }
+});
