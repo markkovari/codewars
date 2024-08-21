@@ -9,6 +9,35 @@ func TestSquareIncremental(t *testing.T) {
 			t.Fatalf("Two elements cannot be solved with squares, instead got %+v", small)
 		}
 	}
+
+	given := SquareSumsRow(15)
+	if given == nil {
+		t.Fatalf("Given should Not be null :( %v", given)
+	}
+}
+
+func TestGenerateIncrementalArrayUntil(t *testing.T) {
+	res := GenerateIncrementalArrayUntil(1)
+	if len(res) != 1 {
+		t.Fatalf("Arr legth should be %d, got %d", 1, len(res))
+	}
+	if res[0] != 1 {
+		t.Fatalf("Arr first element should be %d, got %d", 1, res[0])
+	}
+
+	res = GenerateIncrementalArrayUntil(3)
+	if len(res) != 3 {
+		t.Fatalf("Arr legth should be %d, got %d", 3, len(res))
+	}
+	if res[0] != 1 {
+		t.Fatalf("Arr first element should be %d, got %d", 1, res[0])
+	}
+	if res[1] != 2 {
+		t.Fatalf("Arr first element should be %d, got %d", 2, res[1])
+	}
+	if res[2] != 3 {
+		t.Fatalf("Arr first element should be %d, got %d", 3, res[2])
+	}
 }
 
 func TestPartitions(t *testing.T) {
@@ -33,6 +62,12 @@ func TestPartitions(t *testing.T) {
 	}
 	if after[0] != 1 {
 		t.Fatalf("Simple after only element, should be %d, instead got %d", 3, after[0])
+	}
+
+	withError := []int{}
+	err, before, elem, after = PartitionWithElement(withError, 420)
+	if err == nil {
+		t.Fatalf("Should be error since overindexing %v", withError)
 	}
 }
 
