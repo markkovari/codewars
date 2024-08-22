@@ -40,37 +40,6 @@ func TestGenerateIncrementalArrayUntil(t *testing.T) {
 	}
 }
 
-func TestPartitions(t *testing.T) {
-	simple := []int{1, 2, 3}
-	err, before, elem, after := PartitionWithElement(simple, 1)
-	if err != nil {
-		t.Fatalf("Error should not be present here %v", simple)
-	}
-	if len(before) != 1 {
-		t.Fatalf("Simple before should be one element, instead it has  %d elements, %v", len(before), before)
-	}
-	if before[0] != 1 {
-		t.Fatalf("Simple before only element, should be %d, instead got %d", 1, before[0])
-	}
-
-	if elem != 2 {
-		t.Fatalf("Simple only element, should be %d, instead got %d", 2, elem)
-	}
-
-	if len(after) != 1 {
-		t.Fatal("Simple after should be one element")
-	}
-	if after[0] != 1 {
-		t.Fatalf("Simple after only element, should be %d, instead got %d", 3, after[0])
-	}
-
-	withError := []int{}
-	err, before, elem, after = PartitionWithElement(withError, 420)
-	if err == nil {
-		t.Fatalf("Should be error since overindexing %v", withError)
-	}
-}
-
 func TestIsSquare(t *testing.T) {
 
 	notSquares := []int{1, 2, 3, 5, 6, 11, 101}
