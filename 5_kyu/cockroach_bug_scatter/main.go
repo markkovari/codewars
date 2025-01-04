@@ -1,14 +1,12 @@
 package main
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
 
 type Direction int
-type Position struct {
-	x, y int
-}
 
 const (
 	UP Direction = iota
@@ -16,6 +14,16 @@ const (
 	DOWN
 	RIGHT
 )
+
+type Position struct {
+	row, column int
+}
+
+type Map struct {
+	rowMax, columnMax int
+	cockroaches       []*Cockroach
+	holes             []Hole
+}
 
 func NewDirection(from string) Direction {
 	switch from {
@@ -28,59 +36,55 @@ func NewDirection(from string) Direction {
 	default:
 		return UP
 	}
-
-}
-
-func (d Direction) rotateLeft() Direction {
-	return Direction((d + 1) % 4)
-}
-
-func (d Direction) string() string {
-	switch d {
-	case LEFT:
-		return "L"
-	case RIGHT:
-		return "R"
-	case UP:
-		return "U"
-	case DOWN:
-		return "D"
-	default:
-		return "HEH?"
-	}
 }
 
 type Cockroach struct {
 	direction Direction
-	foundHole bool
+	stopped   bool
 	Position
 }
 
-var moveMap map[Direction][2]int = make(map[Direction][2]int)
-
-func init() {
-	moveMap[UP] = [2]int{0, -1}
-	moveMap[DOWN] = [2]int{0, 1}
-	moveMap[LEFT] = [2]int{-1, 0}
-	moveMap[RIGHT] = [2]int{1, 0}
+func (c Cockroach) atWalls(m Map) bool {
+	if c.column == 0 || c.column == m.columnMax {
+		return true
+	}
+	if c.row == 0 || c.row == m.rowMax {
+		return true
+	}
+	return false
 }
 
-func (c Cockroach) move(fields Map) {
-	delta := moveMap[c.direction]
-	deltaX := delta[0]
-	deltaY := delta[1]
-
-	if c.Position.x+deltaX >= fields.xWidth || c.Position.x+deltaX < 1 {
-		c.direction.rotateLeft()
-	} else if c.Position.y+deltaY >= fields.yWidth || c.Position.y+deltaY < 1 {
-		c.direction.rotateLeft()
-	} else if fields.anyAtPos(deltaX, deltaY) {
-		// NOOP
-		// NOTE: btw this is pretty unclear base on the description tho, we will see
-	} else {
-		c.Position.x += deltaX
-		c.Position.y += deltaY
+func (c *Cockroach) project(fields Map) Position {
+	switch c.direction {
+	case UP:
+		return Position{
+			row:    c.row,
+			column: 0,
+		}
+	case DOWN:
+		return Position{
+			row:    c.row,
+			column: fields.columnMax,
+		}
+	case LEFT:
+		return Position{
+			row:    0,
+			column: c.column,
+		}
+	default:
+		return Position{
+			row:    fields.rowMax,
+			column: c.column,
+		}
 	}
+}
+func returnIfSamePosition(holes []Hole, c Cockroach) (Hole, error) {
+	for _, h := range holes {
+		if h.Position == c.Position {
+			return h, nil
+		}
+	}
+	return Hole{}, errors.New("no hole found")
 }
 
 type Hole struct {
@@ -88,49 +92,31 @@ type Hole struct {
 	Position
 }
 
-type Map struct {
-	xWidth, yWidth int
-	cockroaches    []Cockroach
-	holes          []Hole
-}
-
-func (m Map) anyAtPos(x, y int) bool {
-	for _, c := range m.cockroaches {
-		if c.Position.x == x && c.Position.y == y {
-			return true
-		}
-	}
-	return false
-}
-
 func NewMap(lines []string) Map {
 	m := Map{}
 	holes := make([]Hole, 0)
-	cockroaches := make([]Cockroach, 0)
-	//presume all lines are the same length
-	m.xWidth = len(lines[0])
-	m.yWidth = len(lines)
+	cockroaches := make([]*Cockroach, 0)
+	m.columnMax = len(lines[0])
+	m.rowMax = len(lines)
 
-	for x, line := range lines {
-		for y, char := range strings.Split(line, "") {
-			// Wall
+	for row, line := range lines {
+		for column, char := range strings.Split(line, "") {
 			if char == "|" || char == "-" || char == "+" || char == " " {
 				continue
 			}
-			// Holes
 			holeIndex, err := strconv.ParseInt(char, 8, 10)
 			if err != nil {
-				cockroaches = append(cockroaches, Cockroach{
+				cockroaches = append(cockroaches, &Cockroach{
 					direction: NewDirection(char),
-					foundHole: false,
+					stopped:   false,
 					Position: Position{
-						x,
-						y,
+						row,
+						column,
 					},
 				})
 				continue
 			}
-			holes = append(holes, Hole{id: int(holeIndex), Position: Position{x, y}})
+			holes = append(holes, Hole{id: int(holeIndex), Position: Position{row, column}})
 		}
 	}
 	m.holes = holes
@@ -138,6 +124,64 @@ func NewMap(lines []string) Map {
 	return m
 }
 
+func (m *Map) projectMoves() {
+	for _, c := range m.cockroaches {
+		c.Position = c.project(*m)
+		c.stopped = true
+	}
+}
+
+func (m Map) calculate() [10]int {
+	// counter := make(map[int]int)
+	// firstHole, err := m.holeBeforeOrigo()
+	// currentHoleIndex := -1 // flag to see if
+	// currentCount := 0
+	// if err != nil {
+	// 	return [10]int{}
+	// }
+	// go from firsthole clockwise and count the cockroaches
+	// for row := firstHole.row; row > 0; row-- {
+
+	// }
+	return [10]int{}
+}
+
+// assume there is at least one hole
+func (m Map) holeBeforeOrigo() (Hole, error) {
+	// Upper row
+	for row := 0; row < m.rowMax; row++ {
+		for _, h := range m.holes {
+			if h.row == row && h.column == 0 {
+				return h, nil
+			}
+		}
+	}
+	// Right column
+	for column := 0; column < m.columnMax; column++ {
+		for _, h := range m.holes {
+			if h.column == column && h.row == m.rowMax {
+				return h, nil
+			}
+		}
+	}
+	//bottom row
+	for row := m.rowMax; row > 0; row-- {
+		for _, h := range m.holes {
+			if h.row == row && h.column == m.columnMax {
+				return h, nil
+			}
+		}
+	}
+	// left column
+	for column := m.columnMax; column > 0; column-- {
+		for _, h := range m.holes {
+			if h.column == column && h.row == 0 {
+				return h, nil
+			}
+		}
+	}
+	return Hole{}, errors.New("No hole found, heh?")
+}
+
 func main() {
-	println("hello cockroach_bug_scatter")
 }
